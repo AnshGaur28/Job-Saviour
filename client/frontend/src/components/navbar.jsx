@@ -1,5 +1,7 @@
 import React from "react";
-import backgroundimg from '../../public/assets/herobg.png'
+import backgroundimg from '../../public/assets/herobg.png';
+import { useNavigate } from 'react-router-dom';
+
 import {
   Navbar,
   MobileNav,
@@ -8,19 +10,31 @@ import {
   IconButton,
   Card,
 } from "@material-tailwind/react";
- 
+
 export function StickyNavbar() {
+  const navigate = useNavigate();
+
   const [openNav, setOpenNav] = React.useState(false);
- 
+
   React.useEffect(() => {
     window.addEventListener(
       "resize",
       () => window.innerWidth >= 960 && setOpenNav(false),
     );
   }, []);
- 
+  const handleLogout = () => {
+    // Remove JWT token from local storage
+    localStorage.removeItem("jwtToken");
 
- 
+    // Redirect to the login page or any other page after logout
+    // You can use the useNavigate hook from react-router-dom for navigation
+    // For example:
+    // const navigate = useNavigate();
+    navigate("/login");
+  };
+
+
+
   return (
     <div className="-m-6 max-h-[768px]  overflow-scroll p-1 m-1 ">
       <Navbar className="sticky top-0 z-10  px-4 py-2 lg:px-8 lg:py-4 bg-black"  >
@@ -32,23 +46,49 @@ export function StickyNavbar() {
           >
             Job Saviour
           </Typography>
+          {localStorage.getItem('jwtToken') !== null && <div className="flex items-center gap-4">
+            <Button
+              variant="text"
+              size="lg"
+              className="hidden lg:inline-block text-white"
+            >
+              <a href="/jobpost">Job Posts</a>
+            </Button>
+            <Button
+              variant="text"
+              size="lg"
+              className="hidden lg:inline-block text-white"
+            >
+              <a href="/jobpost-form">Post Job</a>
+            </Button>
+          </div>}
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-x-5">
-              <Button
-                variant="text"
-                size="lg"
-                className="hidden lg:inline-block text-white"
-              >
-                <a href="/login">Log In</a>
-              </Button>
+            {localStorage.getItem('jwtToken') === null ?
+              <div className="flex items-center gap-x-5">
+                <Button
+                  variant="text"
+                  size="lg"
+                  className="hidden lg:inline-block text-white"
+                >
+                  <a href="/login">Log In</a>
+                </Button>
+                <Button
+                  variant="gradient"
+                  size="lg"
+                  className="hidden lg:inline-block text-white"
+                >
+                  <a href="register">Sign in</a>
+                </Button>
+              </div> :
               <Button
                 variant="gradient"
                 size="lg"
                 className="hidden lg:inline-block text-white"
+                onClick={handleLogout}
               >
-                <a href="register">Sign in</a>
+                LogOut
               </Button>
-            </div>
+            }
             <IconButton
               variant="text"
               className="ml-auto h-6 w-6 text-inherit hover:bg-transparent focus:bg-transparent active:bg-transparent lg:hidden"
@@ -88,7 +128,7 @@ export function StickyNavbar() {
             </IconButton>
           </div>
         </div>
-        <MobileNav open={openNav}>
+        {localStorage.getItem('jwtToken') === null ? <MobileNav open={openNav}>
           <div className="flex items-center gap-x-1">
             <Button fullWidth variant="text" size="sm" className="">
               <span>Log In</span>
@@ -97,7 +137,15 @@ export function StickyNavbar() {
               <span>Sign in</span>
             </Button>
           </div>
-        </MobileNav>
+        </MobileNav> :
+          <MobileNav open={openNav}>
+            <div className="flex items-center gap-x-1">
+              <Button fullWidth variant="text" size="sm" className="">
+                <span>Log out</span>
+              </Button>
+            </div>
+          </MobileNav>
+        }
       </Navbar>
     </div>
   );
